@@ -22,10 +22,12 @@ final class AlertController: ObservableObject {
 
     private let settings = UrgencySettings.standard
     private let classifier = AudioClassifier()
+    private let haptics = Haptics()
     private var loudness = LoudnessTracker(settings: .standard)
     private var firstHeard: [SoundKind: Date] = [:]
     private var lastHeard: [SoundKind: Date] = [:]
     private var clearTask: Task<Void, Never>?
+    private var lastBuzz: Date?
 
     init() {
         classifier.onLoudness = { [weak self] level in
@@ -46,6 +48,7 @@ final class AlertController: ObservableObject {
         isListening = false
         clearTask?.cancel()
         alert = nil
+        lastBuzz = nil
         loudness.reset()
         firstHeard.removeAll()
         lastHeard.removeAll()
@@ -61,8 +64,21 @@ final class AlertController: ObservableObject {
         if let current = alert, current.kind != best.kind, best.score < current.score {
             return
         }
+        let isNewSound = alert?.kind != best.kind
         alert = best
         scheduleClear(after: settings.holdTime(for: best.score))
+        buzzIfDue(for: best, isNewSound: isNewSound, at: now)
+    }
+
+    /// Buzzes at once for a new sound, then repeats while it continues,
+    /// faster and stronger for higher scores.
+    private func buzzIfDue(for alert: Alert, isNewSound: Bool, at now: Date) {
+        if !isNewSound, let lastBuzz,
+           now.timeIntervalSince(lastBuzz) < settings.repeatInterval(for: alert.score) {
+            return
+        }
+        haptics.buzz(intensity: settings.vibrationIntensity(for: alert.score))
+        lastBuzz = now
     }
 
     /// Clears the alert once no new detection has arrived for `seconds`.
@@ -72,6 +88,7 @@ final class AlertController: ObservableObject {
             try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
             guard !Task.isCancelled else { return }
             self?.alert = nil
+            self?.lastBuzz = nil
         }
     }
 

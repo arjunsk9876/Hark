@@ -5,7 +5,6 @@
 //  Created by Arjun SK on 10/25/26.
 //
 
-import Combine
 import SwiftUI
 
 struct ContentView: View {
@@ -73,10 +72,6 @@ struct ContentView: View {
                 .buttonStyle(.plain)
             }
             .padding(24)
-        }
-        // Vibrate once each time a new sound is detected.
-        .onReceive(alerts.$alert.map { $0?.kind }.removeDuplicates().compactMap { $0 }) { _ in
-            UINotificationFeedbackGenerator().notificationOccurred(.warning)
         }
     }
 
