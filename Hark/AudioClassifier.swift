@@ -4,7 +4,6 @@
 //
 
 @preconcurrency import AVFoundation
-import Combine
 @preconcurrency import SoundAnalysis
 
 /// One supported sound the classifier heard, with how sure it is.
@@ -14,10 +13,9 @@ nonisolated struct Detection: Sendable {
 }
 
 /// Streams the microphone into Apple's built-in sound classifier and
-/// publishes the latest supported sound it hears.
-final class AudioClassifier: ObservableObject {
-    @Published private(set) var detected: SoundKind?
-    @Published private(set) var isListening = false
+/// reports loudness and supported sounds through callbacks.
+final class AudioClassifier {
+    private(set) var isListening = false
 
     /// Called on the main actor with the loudness of each buffer, in dBFS.
     var onLoudness: ((Double) -> Void)?
@@ -43,10 +41,7 @@ final class AudioClassifier: ObservableObject {
         let analyzer = SNAudioStreamAnalyzer(format: format)
         let observer = ResultsObserver(minimumConfidence: UrgencySettings.standard.minimumConfidence) { [weak self] detections in
             guard let self else { return }
-            Task { @MainActor in
-                self.detected = detections.first?.kind
-                self.onDetections?(detections)
-            }
+            Task { @MainActor in self.onDetections?(detections) }
         }
         let request = try SNClassifySoundRequest(classifierIdentifier: .version1)
         try analyzer.add(request, withObserver: observer)
@@ -72,7 +67,6 @@ final class AudioClassifier: ObservableObject {
         analyzer?.removeAllRequests()
         analyzer = nil
         observer = nil
-        detected = nil
         isListening = false
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
