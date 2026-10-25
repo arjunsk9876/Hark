@@ -74,32 +74,64 @@ nonisolated private final class ResultsObserver: NSObject, SNResultsObserving {
     private static let minimumConfidence = 0.5
 
     // Identifiers from SNClassifySoundRequest version 1.
+    // No matching label for: railroad crossing bell, car alarm, burglar alarm,
+    // jackhammer, leaf blower, and construction machinery.
     private static let labels: [String: SoundKind] = [
+        // Vehicles and traffic
         "siren": .siren,
         "police_siren": .siren,
         "ambulance_siren": .siren,
         "fire_engine_siren": .siren,
-        "civil_defense_siren": .siren,
         "emergency_vehicle": .siren,
         "car_horn": .carHorn,
-        "air_horn": .carHorn,
+        "air_horn": .airHorn,
         "train_horn": .trainHorn,
         "train_whistle": .trainHorn,
-        "shout": .shouting,
-        "yell": .shouting,
-        "screaming": .shouting,
         "vehicle_skidding": .tireScreech,
-        "bicycle_bell": .bikeBell,
-        "dog_bark": .dogBarking,
-        "dog_bow_wow": .dogBarking,
-        "gunshot_gunfire": .gunshot,
-        "artillery_fire": .gunshot,
         "reverse_beeps": .backupBeeper,
         "motorcycle": .motorcycle,
+        "engine_accelerating_revving": .engineRevving,
+        "truck": .truckOrBus,
+        "bus": .truckOrBus,
+        "car_passing_by": .carPassing,
+        "bicycle_bell": .bikeBell,
+        "skateboard": .skateboard,
+
+        // Alarms and warnings
+        "smoke_detector": .smokeAlarm,
+        "civil_defense_siren": .civilDefenseSiren,
+        "whistling": .whistle,
+
+        // People
+        "screaming": .screaming,
+        "shout": .shouting,
+        "yell": .shouting,
+        "baby_crying": .babyCrying,
+
+        // Sudden events
+        "gunshot_gunfire": .gunshot,
+        "artillery_fire": .gunshot,
+        "boom": .explosion,
+        "fireworks": .fireworks,
+        "firecracker": .fireworks,
+        "glass_breaking": .glassBreaking,
+        "thump_thud": .crash,
+
+        // Animals
+        "dog_bark": .dogBarking,
+        "dog_bow_wow": .dogBarking,
+        "dog_growl": .dogGrowling,
+
+        // Weather
         "thunder": .thunder,
         "thunderstorm": .thunder,
-        "dog_growl": .dogGrowling,
-        "skateboard": .skateboard,
+
+        // Machinery
+        "chainsaw": .chainsaw,
+        "drill": .powerTool,
+        "power_tool": .powerTool,
+        "lawn_mower": .lawnMower,
+        "helicopter": .helicopter,
     ]
 
     private let onDetect: @Sendable (SoundKind) -> Void
