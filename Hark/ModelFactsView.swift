@@ -30,15 +30,14 @@ struct ModelFactsView: View {
 
             Section("Sounds") {
                 ForEach(SoundGroup.allCases, id: \.self) { group in
-                    let kinds = SoundKind.allCases.filter { $0.group == group }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(group.title).bold()
-                        Text(kinds.map { detectable.contains($0) ? $0.title : "\($0.title) (not yet)" }
-                            .joined(separator: ", "))
+                    let kinds = SoundKind.allCases.filter { $0.group == group && detectable.contains($0) }
+                    if !kinds.isEmpty {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(group.title).bold()
+                            Text(kinds.map(\.title).joined(separator: ", "))
+                        }
                     }
                 }
-                Text("Sounds marked “not yet” have no matching label in Apple's classifier, so Hark cannot hear them.")
-                    .foregroundColor(.secondary)
             }
 
             Section("Rules") {
