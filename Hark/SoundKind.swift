@@ -119,6 +119,47 @@ nonisolated enum SoundKind: CaseIterable {
         }
     }
 
+    /// SF Symbol shown with the alert. All are available on iOS 16.
+    var symbol: String {
+        switch self {
+        case .siren: return "light.beacon.max.fill"
+        case .carHorn: return "car.fill"
+        case .airHorn: return "box.truck.fill"
+        case .trainHorn: return "tram.fill"
+        case .railroadCrossingBell: return "train.side.front.car"
+        case .tireScreech: return "car.side.fill"
+        case .carAlarm: return "light.beacon.min.fill"
+        case .backupBeeper: return "arrow.uturn.backward.circle.fill"
+        case .motorcycle: return "speedometer"
+        case .engineRevving: return "engine.combustion.fill"
+        case .truckOrBus: return "bus.fill"
+        case .carPassing: return "car.2.fill"
+        case .bikeBell: return "bicycle"
+        case .skateboard: return "figure.run"
+        case .smokeAlarm: return "flame.fill"
+        case .burglarAlarm: return "lock.shield.fill"
+        case .civilDefenseSiren: return "megaphone.fill"
+        case .whistle: return "speaker.wave.3.fill"
+        case .screaming: return "exclamationmark.bubble.fill"
+        case .shouting: return "quote.bubble.fill"
+        case .babyCrying: return "stroller.fill"
+        case .gunshot: return "exclamationmark.octagon.fill"
+        case .explosion: return "burst.fill"
+        case .fireworks: return "sparkles"
+        case .glassBreaking: return "wineglass.fill"
+        case .crash: return "exclamationmark.triangle.fill"
+        case .dogBarking, .dogGrowling: return "pawprint.fill"
+        case .thunder: return "cloud.bolt.fill"
+        case .jackhammer: return "hammer.fill"
+        case .chainsaw: return "tree.fill"
+        case .powerTool: return "wrench.and.screwdriver.fill"
+        case .lawnMower: return "leaf.fill"
+        case .leafBlower: return "wind"
+        case .construction: return "cone.fill"
+        case .helicopter: return "airplane"
+        }
+    }
+
     var group: SoundGroup {
         switch self {
         case .siren, .carHorn, .airHorn, .trainHorn, .railroadCrossingBell, .tireScreech,
