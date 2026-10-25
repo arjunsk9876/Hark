@@ -139,4 +139,40 @@ enum SoundKind: CaseIterable {
             return .machinery
         }
     }
+
+    /// How dangerous the sound usually is, from 0 to 1. This is one input to
+    /// the live urgency score. Starting guesses, to be tuned by testing.
+    var baseDanger: Double {
+        switch self {
+        case .siren, .trainHorn, .tireScreech, .civilDefenseSiren, .gunshot, .explosion:
+            return 1.0
+        case .carHorn, .airHorn, .railroadCrossingBell, .smokeAlarm:
+            return 0.9
+        case .screaming, .crash:
+            return 0.8
+        case .backupBeeper:
+            return 0.7
+        case .motorcycle, .engineRevving, .shouting, .glassBreaking, .dogGrowling, .thunder:
+            return 0.6
+        case .truckOrBus, .burglarAlarm, .whistle, .fireworks:
+            return 0.5
+        case .carAlarm, .carPassing, .bikeBell, .chainsaw:
+            return 0.4
+        case .skateboard, .dogBarking, .jackhammer, .construction, .helicopter:
+            return 0.3
+        case .babyCrying, .powerTool, .lawnMower, .leafBlower:
+            return 0.2
+        }
+    }
+
+    /// Whether the sound can come toward the user, so "Getting closer" applies.
+    var canMove: Bool {
+        switch self {
+        case .siren, .carHorn, .airHorn, .trainHorn, .backupBeeper, .motorcycle,
+             .engineRevving, .truckOrBus, .carPassing, .bikeBell, .skateboard, .helicopter:
+            return true
+        default:
+            return false
+        }
+    }
 }
