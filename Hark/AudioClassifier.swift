@@ -7,6 +7,12 @@
 import Combine
 @preconcurrency import SoundAnalysis
 
+/// One supported sound the classifier heard, with how sure it is.
+nonisolated struct Detection: Sendable {
+    let kind: SoundKind
+    let confidence: Double
+}
+
 /// Streams the microphone into Apple's built-in sound classifier and
 /// publishes the latest supported sound it hears.
 final class AudioClassifier: ObservableObject {
@@ -15,6 +21,9 @@ final class AudioClassifier: ObservableObject {
 
     /// Called on the main actor with the loudness of each buffer, in dBFS.
     var onLoudness: ((Double) -> Void)?
+
+    /// Called on the main actor with every supported sound in each result.
+    var onDetections: (([Detection]) -> Void)?
 
     private let engine = AVAudioEngine()
     private var analyzer: SNAudioStreamAnalyzer?
@@ -32,9 +41,12 @@ final class AudioClassifier: ObservableObject {
         let format = input.outputFormat(forBus: 0)
 
         let analyzer = SNAudioStreamAnalyzer(format: format)
-        let observer = ResultsObserver { [weak self] kind in
+        let observer = ResultsObserver(minimumConfidence: UrgencySettings.standard.minimumConfidence) { [weak self] detections in
             guard let self else { return }
-            Task { @MainActor in self.detected = kind }
+            Task { @MainActor in
+                self.detected = detections.first?.kind
+                self.onDetections?(detections)
+            }
         }
         let request = try SNClassifySoundRequest(classifierIdentifier: .version1)
         try analyzer.add(request, withObserver: observer)
@@ -91,11 +103,9 @@ final class AudioClassifier: ObservableObject {
     }
 }
 
-/// Receives classifier results on the analysis queue and reports the
-/// highest-confidence supported sound at 50% confidence or higher.
+/// Receives classifier results on the analysis queue and reports every
+/// supported sound at or above the minimum confidence, most confident first.
 nonisolated private final class ResultsObserver: NSObject, SNResultsObserving {
-    private static let minimumConfidence = 0.5
-
     // Identifiers from SNClassifySoundRequest version 1.
     // No matching label for: railroad crossing bell, car alarm, burglar alarm,
     // jackhammer, leaf blower, and construction machinery.
@@ -157,20 +167,27 @@ nonisolated private final class ResultsObserver: NSObject, SNResultsObserving {
         "helicopter": .helicopter,
     ]
 
-    private let onDetect: @Sendable (SoundKind) -> Void
+    private let minimumConfidence: Double
+    private let onDetect: @Sendable ([Detection]) -> Void
 
-    init(onDetect: @escaping @Sendable (SoundKind) -> Void) {
+    init(minimumConfidence: Double, onDetect: @escaping @Sendable ([Detection]) -> Void) {
+        self.minimumConfidence = minimumConfidence
         self.onDetect = onDetect
     }
 
     func request(_ request: SNRequest, didProduce result: SNResult) {
         guard let result = result as? SNClassificationResult else { return }
-        // Classifications are sorted from most to least confident.
-        for classification in result.classifications where classification.confidence >= Self.minimumConfidence {
-            if let kind = Self.labels[classification.identifier] {
-                onDetect(kind)
-                return
+        // Classifications are sorted from most to least confident, so the
+        // first label seen for each sound is its best one.
+        var detections: [Detection] = []
+        for classification in result.classifications where classification.confidence >= minimumConfidence {
+            if let kind = Self.labels[classification.identifier],
+               !detections.contains(where: { $0.kind == kind }) {
+                detections.append(Detection(kind: kind, confidence: classification.confidence))
             }
+        }
+        if !detections.isEmpty {
+            onDetect(detections)
         }
     }
 
