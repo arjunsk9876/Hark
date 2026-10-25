@@ -34,14 +34,16 @@ those six are not detected yet.
   signals: base danger of the sound, loudness above background noise, how
   fast it is getting louder, how suddenly it started, how long it has
   lasted, and the classifier's confidence.
-- Below 0.25 there is no alert. The score sets the screen color (blue, orange,
-  or red), how long the alert stays up (2 s to 5 s), and the vibration:
+- Below 0.25 there is no alert. The score sets the screen color (blue below
+  0.4, orange below 0.7, red from 0.7 up), how long the alert stays up
+  (2 s to 5 s), and the vibration:
   - strength, soft at 0.25 and full at 1
   - sharpness, a dull thud at low scores and a sharp knock at high ones
   - pulses per buzz: one for blue, two for orange, three for red
   - repeats while the sound continues, every 8 s at low scores down to
     every 1.5 s at high ones
-- With the phone locked, Core Haptics cannot play, so Hark falls back to the
+- Listening keeps running with the screen locked (background audio). With
+  the phone locked, Core Haptics cannot play, so Hark falls back to the
   system vibration and carries urgency by pulse count alone.
 - Listening pauses for phone calls and Siri and resumes afterwards, and
   restarts on its own when headphones connect or iOS resets audio.
@@ -64,10 +66,12 @@ those six are not detected yet.
 - First run: a short explanation and the safety note before the microphone
   prompt. If access is denied, the Listen screen offers to open Settings.
 
+All text scales with Dynamic Type.
+
 ## Requirements
 
 - Xcode 26 or later
-- iPhone running iOS 16 or later (use a real device; the simulator does not
+- iPhone running iOS 16.6 or later (use a real device; the simulator does not
   represent the microphone or vibration well)
 
 ## Running
