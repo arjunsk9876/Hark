@@ -5,17 +5,11 @@
 
 import SwiftUI
 
-/// Test results shown on the Model facts screen. Replace nil with the real
-/// number once a test has been run.
+/// Test results shown on the Model facts screen. The section is hidden until
+/// at least one real result is added here, for example
+/// ("Accuracy with wind and traffic", "74%").
 enum MeasuredAccuracy {
-    static let results: [(test: String, result: String?)] = [
-        ("Accuracy on clean clips", nil),
-        ("Accuracy with wind and traffic", nil),
-        ("False alarms on a quiet route", nil),
-        ("Time from sound to vibration", nil),
-        ("Getting closer label", nil),
-        ("Battery use per hour", nil),
-    ]
+    static let results: [(test: String, result: String)] = []
 }
 
 /// Says plainly which model Hark uses, what it does with audio, the rules it
@@ -54,16 +48,18 @@ struct ModelFactsView: View {
                 Text("“Getting closer” shows for moving sounds when loudness rises faster than \(format(settings.trendRate, digits: 1)) dB per second over \(Int(settings.trendWindow)) seconds.")
             }
 
-            Section("Tested accuracy") {
-                ForEach(MeasuredAccuracy.results, id: \.test) { row in
-                    HStack {
-                        Text(row.test)
-                        Spacer()
-                        Text(row.result ?? "Not yet measured")
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.trailing)
+            if !MeasuredAccuracy.results.isEmpty {
+                Section("Tested accuracy") {
+                    ForEach(MeasuredAccuracy.results, id: \.test) { row in
+                        HStack {
+                            Text(row.test)
+                            Spacer()
+                            Text(row.result)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.trailing)
+                        }
+                        .accessibilityElement(children: .combine)
                     }
-                    .accessibilityElement(children: .combine)
                 }
             }
 

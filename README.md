@@ -58,8 +58,9 @@ those six are not detected yet.
 - Recent: the last 50 alerts with times, in memory only.
 - More: Keep screen on, Debug (shows raw labels, the score, and each signal
   on the Listen screen), Model facts, and the safety note.
-- Model facts: model, privacy, sounds, rules, tested accuracy, and limits.
-  Enter real test results in `MeasuredAccuracy` in `ModelFactsView.swift`.
+- Model facts: model, privacy, sounds, rules, and limits. A tested accuracy
+  section appears once real results are added to `MeasuredAccuracy` in
+  `ModelFactsView.swift`.
 - First run: a short explanation and the safety note before the microphone
   prompt. If access is denied, the Listen screen offers to open Settings.
 
