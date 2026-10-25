@@ -7,11 +7,15 @@
 import Combine
 @preconcurrency import SoundAnalysis
 
-/// Streams the microphone with AVAudioEngine.
+/// Streams the microphone into Apple's built-in sound classifier and
+/// publishes the latest supported sound it hears.
 final class AudioClassifier: ObservableObject {
+    @Published private(set) var detected: SoundKind?
     @Published private(set) var isListening = false
 
     private let engine = AVAudioEngine()
+    private var analyzer: SNAudioStreamAnalyzer?
+    private var observer: ResultsObserver?
 
     func start() throws {
         guard !isListening else { return }
@@ -21,18 +25,46 @@ final class AudioClassifier: ObservableObject {
         try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
         try session.setActive(true)
 
-        _ = engine.inputNode
+        let input = engine.inputNode
+        let format = input.outputFormat(forBus: 0)
+
+        let analyzer = SNAudioStreamAnalyzer(format: format)
+        let observer = ResultsObserver { [weak self] kind in
+            guard let self else { return }
+            Task { @MainActor in self.detected = kind }
+        }
+        let request = try SNClassifySoundRequest(classifierIdentifier: .version1)
+        try analyzer.add(request, withObserver: observer)
+
+        input.installTap(onBus: 0, bufferSize: 8192, format: format, block: Self.makeTap(for: analyzer))
         engine.prepare()
         try engine.start()
 
+        self.analyzer = analyzer
+        self.observer = observer
         isListening = true
     }
 
     func stop() {
         guard isListening else { return }
+        engine.inputNode.removeTap(onBus: 0)
         engine.stop()
+        analyzer?.removeAllRequests()
+        analyzer = nil
+        observer = nil
+        detected = nil
         isListening = false
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    // Built outside the main actor because the audio thread calls it.
+    nonisolated private static func makeTap(for analyzer: SNAudioStreamAnalyzer) -> AVAudioNodeTapBlock {
+        let queue = DispatchQueue(label: "Hark.analysis")
+        return { buffer, time in
+            queue.async {
+                analyzer.analyze(buffer, atAudioFramePosition: time.sampleTime)
+            }
+        }
     }
 }
 
