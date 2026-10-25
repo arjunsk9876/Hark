@@ -30,7 +30,17 @@ those six are not detected yet.
 
 - Microphone audio is streamed with `AVAudioEngine`.
 - Apple's built-in `SoundAnalysis` classifier (version 1) labels the audio.
-- Only the sounds above are reported, at 50% confidence or higher.
+- Each detected sound gets a live urgency score from 0 to 1, built from six
+  signals: base danger of the sound, loudness above background noise, how
+  fast it is getting louder, how suddenly it started, how long it has
+  lasted, and the classifier's confidence.
+- Below 0.25 there is no alert. The score sets the screen color (blue, orange,
+  or red), the vibration strength, how often the vibration repeats (every 8 s
+  down to every 1.5 s), and how long the alert stays up (2 s to 5 s).
+- Moving sounds show "Getting closer" or "Moving away" when their loudness
+  rises or falls faster than 1.5 dB per second over 4 seconds.
+- All weights and cut-offs live in `UrgencySettings.swift` and are starting
+  guesses to tune by testing.
 - Everything runs on the phone. Audio is never saved or sent.
 
 ## Requirements
