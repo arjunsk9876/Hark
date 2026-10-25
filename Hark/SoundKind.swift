@@ -5,7 +5,7 @@
 
 import Foundation
 
-enum SoundGroup: CaseIterable {
+nonisolated enum SoundGroup: CaseIterable {
     case vehicles
     case alarms
     case people
@@ -27,7 +27,7 @@ enum SoundGroup: CaseIterable {
     }
 }
 
-enum SoundKind: CaseIterable {
+nonisolated enum SoundKind: CaseIterable {
     // Vehicles and traffic
     case siren
     case carHorn
