@@ -72,6 +72,23 @@ nonisolated struct LoudnessTracker {
         return variance > 0 ? covariance / variance : 0
     }
 
+    /// The biggest jump in loudness within half a second, over the last two
+    /// seconds, in dB. Large for screeches and crashes, small for sounds
+    /// that fade in.
+    func suddenRise(at now: Date) -> Double {
+        let recent = samples.filter { $0.time >= now.addingTimeInterval(-2.5) }
+        var biggest = 0.0
+        for sample in recent where sample.time >= now.addingTimeInterval(-2) {
+            let before = recent.filter {
+                $0.time < sample.time && $0.time >= sample.time.addingTimeInterval(-0.5)
+            }
+            if let quietest = before.map(\.level).min() {
+                biggest = max(biggest, sample.level - quietest)
+            }
+        }
+        return biggest
+    }
+
     private func average(of samples: [Sample]) -> Double? {
         guard !samples.isEmpty else { return nil }
         return samples.map(\.level).reduce(0, +) / Double(samples.count)
