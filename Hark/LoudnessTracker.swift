@@ -48,6 +48,30 @@ nonisolated struct LoudnessTracker {
         return max(0, current - background)
     }
 
+    /// Slope of a line fitted to loudness over the trend window, in dB per
+    /// second. Positive means getting louder.
+    func trend(at now: Date) -> Double {
+        let start = now.addingTimeInterval(-settings.trendWindow)
+        let window = samples.filter { $0.time >= start }
+        guard window.count >= 4,
+              let first = window.first, let last = window.last,
+              last.time.timeIntervalSince(first.time) >= settings.trendWindow / 2
+        else { return 0 }
+
+        let xs = window.map { $0.time.timeIntervalSince(start) }
+        let ys = window.map(\.level)
+        let n = Double(window.count)
+        let meanX = xs.reduce(0, +) / n
+        let meanY = ys.reduce(0, +) / n
+        var covariance = 0.0
+        var variance = 0.0
+        for (x, y) in zip(xs, ys) {
+            covariance += (x - meanX) * (y - meanY)
+            variance += (x - meanX) * (x - meanX)
+        }
+        return variance > 0 ? covariance / variance : 0
+    }
+
     private func average(of samples: [Sample]) -> Double? {
         guard !samples.isEmpty else { return nil }
         return samples.map(\.level).reduce(0, +) / Double(samples.count)
