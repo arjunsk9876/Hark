@@ -51,3 +51,41 @@ extension UrgencySignals {
         min(max(value / full, 0), 1)
     }
 }
+
+/// Which color band a score falls in.
+nonisolated enum UrgencyLevel: Sendable {
+    case low
+    case medium
+    case high
+
+    init(score: Double, settings: UrgencySettings) {
+        if score > settings.highUrgency {
+            self = .high
+        } else if score >= settings.mediumUrgency {
+            self = .medium
+        } else {
+            self = .low
+        }
+    }
+}
+
+/// Whether a moving sound is getting closer, based on the loudness trend.
+nonisolated enum Trend: Sendable {
+    case closer
+    case away
+    case steady
+
+    init(kind: SoundKind, decibelsPerSecond: Double, settings: UrgencySettings) {
+        guard kind.canMove else {
+            self = .steady
+            return
+        }
+        if decibelsPerSecond > settings.trendRate {
+            self = .closer
+        } else if decibelsPerSecond < -settings.trendRate {
+            self = .away
+        } else {
+            self = .steady
+        }
+    }
+}
