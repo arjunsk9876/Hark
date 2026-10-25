@@ -43,4 +43,25 @@ nonisolated struct UrgencySettings: Sendable {
     var softestVibration = 0.3            // intensity at the alert minimum
 
     static let standard = UrgencySettings()
+
+    /// Vibration intensity, soft at the alert minimum and full at 1.
+    func vibrationIntensity(for score: Double) -> Double {
+        blend(from: softestVibration, to: 1, score: score)
+    }
+
+    /// Seconds between repeat vibrations while the sound continues.
+    func repeatInterval(for score: Double) -> Double {
+        blend(from: slowestRepeat, to: fastestRepeat, score: score)
+    }
+
+    /// Seconds the alert stays up after the last detection.
+    func holdTime(for score: Double) -> Double {
+        blend(from: shortestHold, to: longestHold, score: score)
+    }
+
+    /// Moves from `low` at the alert minimum to `high` at a score of 1.
+    private func blend(from low: Double, to high: Double, score: Double) -> Double {
+        let t = min(max((score - alertMinimum) / (1 - alertMinimum), 0), 1)
+        return low + (high - low) * t
+    }
 }
