@@ -9,13 +9,13 @@ import Combine
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var classifier = AudioClassifier()
+    @StateObject private var alerts = AlertController()
     @State private var errorMessage: String?
 
     private var statusText: String {
         if let errorMessage { return errorMessage }
-        if let sound = classifier.detected { return sound.title }
-        return classifier.isListening ? "Listening" : "Stopped"
+        if let alert = alerts.alert { return alert.kind.title }
+        return alerts.isListening ? "Listening" : "Stopped"
     }
 
     var body: some View {
@@ -33,7 +33,7 @@ struct ContentView: View {
                 Spacer()
 
                 Button(action: toggleListening) {
-                    Text(classifier.isListening ? "Stop" : "Start")
+                    Text(alerts.isListening ? "Stop" : "Start")
                         .font(.title.weight(.bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity, minHeight: 64)
@@ -45,18 +45,18 @@ struct ContentView: View {
             .padding(24)
         }
         // Vibrate once each time a new sound is detected.
-        .onReceive(classifier.$detected.removeDuplicates().compactMap { $0 }) { _ in
+        .onReceive(alerts.$alert.map { $0?.kind }.removeDuplicates().compactMap { $0 }) { _ in
             UINotificationFeedbackGenerator().notificationOccurred(.warning)
         }
     }
 
     private func toggleListening() {
         errorMessage = nil
-        if classifier.isListening {
-            classifier.stop()
+        if alerts.isListening {
+            alerts.stop()
         } else {
             do {
-                try classifier.start()
+                try alerts.start()
             } catch {
                 errorMessage = "Could not start microphone"
             }
