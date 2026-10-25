@@ -18,6 +18,15 @@ struct ContentView: View {
         return alerts.isListening ? "Listening" : "Stopped"
     }
 
+    private var trendText: String? {
+        guard errorMessage == nil else { return nil }
+        switch alerts.alert?.trend {
+        case .closer: return "Getting closer"
+        case .away: return "Moving away"
+        case .steady, nil: return nil
+        }
+    }
+
     private var backgroundColor: Color {
         switch alerts.alert?.level {
         case nil: return .black
@@ -39,10 +48,17 @@ struct ContentView: View {
             VStack(spacing: 40) {
                 Spacer()
 
-                Text(statusText)
-                    .font(.system(size: 42, weight: .heavy))
-                    .foregroundColor(textColor)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: 12) {
+                    Text(statusText)
+                        .font(.system(size: 42, weight: .heavy))
+
+                    if let trendText {
+                        Text(trendText)
+                            .font(.system(size: 28, weight: .bold))
+                    }
+                }
+                .foregroundColor(textColor)
+                .multilineTextAlignment(.center)
 
                 Spacer()
 
