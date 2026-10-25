@@ -8,10 +8,23 @@ It is an aid, not a replacement for awareness of your surroundings.
 
 ## Sounds
 
-- Urgent: siren, car horn, train horn, tire screech, gunshot
-- Caution: someone shouting, truck backing up, motorcycle, thunder, dog
-  growling, rattlesnake
-- Info: bike bell, dog barking, skateboard
+Hark listens for 36 sounds in seven groups:
+
+- Vehicles and traffic: siren, car horn, truck horn, train horn, railroad
+  crossing bell, tire screech, car alarm, backup beeper, motorcycle, engine
+  revving, truck or bus, car passing, bike bell, skateboard
+- Alarms and warnings: fire or smoke alarm, burglar alarm, civil defense
+  siren, whistle
+- People: screaming, shouting, baby crying
+- Sudden events: gunshot, explosion, fireworks, glass breaking, crash
+- Animals: dog barking, dog growling
+- Weather: thunder
+- Machinery: jackhammer, chainsaw, power tool, lawn mower, leaf blower,
+  construction, helicopter
+
+Apple's built-in classifier has no label for railroad crossing bell, car
+alarm, burglar alarm, jackhammer, leaf blower, or construction machinery, so
+those six are not detected yet.
 
 ## How it works
 
