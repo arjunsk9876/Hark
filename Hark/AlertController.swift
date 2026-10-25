@@ -25,6 +25,7 @@ final class AlertController: ObservableObject {
     private var loudness = LoudnessTracker(settings: .standard)
     private var firstHeard: [SoundKind: Date] = [:]
     private var lastHeard: [SoundKind: Date] = [:]
+    private var clearTask: Task<Void, Never>?
 
     init() {
         classifier.onLoudness = { [weak self] level in
@@ -43,6 +44,7 @@ final class AlertController: ObservableObject {
     func stop() {
         classifier.stop()
         isListening = false
+        clearTask?.cancel()
         alert = nil
         loudness.reset()
         firstHeard.removeAll()
@@ -60,6 +62,17 @@ final class AlertController: ObservableObject {
             return
         }
         alert = best
+        scheduleClear(after: settings.holdTime(for: best.score))
+    }
+
+    /// Clears the alert once no new detection has arrived for `seconds`.
+    private func scheduleClear(after seconds: Double) {
+        clearTask?.cancel()
+        clearTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+            guard !Task.isCancelled else { return }
+            self?.alert = nil
+        }
     }
 
     private func score(_ detection: Detection, at now: Date) -> Alert {
