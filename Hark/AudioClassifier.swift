@@ -13,6 +13,9 @@ final class AudioClassifier: ObservableObject {
     @Published private(set) var detected: SoundKind?
     @Published private(set) var isListening = false
 
+    /// Called on the main actor with the loudness of each buffer, in dBFS.
+    var onLoudness: ((Double) -> Void)?
+
     private let engine = AVAudioEngine()
     private var analyzer: SNAudioStreamAnalyzer?
     private var observer: ResultsObserver?
@@ -36,7 +39,12 @@ final class AudioClassifier: ObservableObject {
         let request = try SNClassifySoundRequest(classifierIdentifier: .version1)
         try analyzer.add(request, withObserver: observer)
 
-        input.installTap(onBus: 0, bufferSize: 8192, format: format, block: Self.makeTap(for: analyzer))
+        let reportLoudness: @Sendable (Double) -> Void = { [weak self] level in
+            guard let self else { return }
+            Task { @MainActor in self.onLoudness?(level) }
+        }
+        input.installTap(onBus: 0, bufferSize: 8192, format: format,
+                         block: Self.makeTap(for: analyzer, reportLoudness: reportLoudness))
         engine.prepare()
         try engine.start()
 
@@ -58,13 +66,28 @@ final class AudioClassifier: ObservableObject {
     }
 
     // Built outside the main actor because the audio thread calls it.
-    nonisolated private static func makeTap(for analyzer: SNAudioStreamAnalyzer) -> AVAudioNodeTapBlock {
+    nonisolated private static func makeTap(
+        for analyzer: SNAudioStreamAnalyzer,
+        reportLoudness: @escaping @Sendable (Double) -> Void
+    ) -> AVAudioNodeTapBlock {
         let queue = DispatchQueue(label: "Hark.analysis")
         return { buffer, time in
+            reportLoudness(loudness(of: buffer))
             queue.async {
                 analyzer.analyze(buffer, atAudioFramePosition: time.sampleTime)
             }
         }
+    }
+
+    /// Root-mean-square level of the first channel, in dBFS.
+    nonisolated private static func loudness(of buffer: AVAudioPCMBuffer) -> Double {
+        guard let samples = buffer.floatChannelData?[0], buffer.frameLength > 0 else { return -100 }
+        var sum: Float = 0
+        for i in 0..<Int(buffer.frameLength) {
+            sum += samples[i] * samples[i]
+        }
+        let rms = (sum / Float(buffer.frameLength)).squareRoot()
+        return max(-100, 20 * log10(Double(rms)))
     }
 }
 
