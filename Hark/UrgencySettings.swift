@@ -25,7 +25,7 @@ nonisolated struct UrgencySettings: Sendable {
     var highUrgency = 0.7
 
     // What counts as a full-strength signal.
-    var loudnessForFullSignal = 20.0      // dB above background
+    var loudnessForFullSignal = 30.0      // dB above background
     var closingRateForFullSignal = 6.0    // dB per second
     var suddenRiseForFullSignal = 15.0    // dB jump within half a second
     var persistenceForFullSignal = 5.0    // seconds
