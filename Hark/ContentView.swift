@@ -18,16 +18,30 @@ struct ContentView: View {
         return alerts.isListening ? "Listening" : "Stopped"
     }
 
+    private var backgroundColor: Color {
+        switch alerts.alert?.level {
+        case nil: return .black
+        case .low: return Color(.systemBlue)
+        case .medium: return Color(.systemOrange)
+        case .high: return Color(.systemRed)
+        }
+    }
+
+    // White on orange is hard to read, so orange alerts use black text.
+    private var textColor: Color {
+        alerts.alert?.level == .medium ? .black : .white
+    }
+
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            backgroundColor.ignoresSafeArea()
 
             VStack(spacing: 40) {
                 Spacer()
 
                 Text(statusText)
                     .font(.system(size: 42, weight: .heavy))
-                    .foregroundColor(.white)
+                    .foregroundColor(textColor)
                     .multilineTextAlignment(.center)
 
                 Spacer()
