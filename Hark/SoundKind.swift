@@ -5,6 +5,12 @@
 
 import Foundation
 
+enum Urgency {
+    case urgent
+    case caution
+    case info
+}
+
 enum SoundKind: CaseIterable {
     case siren
     case carHorn
@@ -23,6 +29,14 @@ enum SoundKind: CaseIterable {
         case .tireScreech: return "Tire screech"
         case .bikeBell: return "Bike bell"
         case .dogBarking: return "Dog barking"
+        }
+    }
+
+    var urgency: Urgency {
+        switch self {
+        case .siren, .carHorn, .trainHorn, .tireScreech: return .urgent
+        case .shouting: return .caution
+        case .bikeBell, .dogBarking: return .info
         }
     }
 }
