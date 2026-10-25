@@ -94,12 +94,11 @@ nonisolated private final class ResultsObserver: NSObject, SNResultsObserving {
         "dog_bow_wow": .dogBarking,
         "gunshot_gunfire": .gunshot,
         "artillery_fire": .gunshot,
-        "reverse_beeps": .backingTruck,
+        "reverse_beeps": .backupBeeper,
         "motorcycle": .motorcycle,
         "thunder": .thunder,
         "thunderstorm": .thunder,
         "dog_growl": .dogGrowling,
-        "snake_rattle": .rattlesnake,
         "skateboard": .skateboard,
     ]
 

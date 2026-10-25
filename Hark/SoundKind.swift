@@ -5,52 +5,138 @@
 
 import Foundation
 
-enum Urgency {
-    case urgent
-    case caution
-    case info
+enum SoundGroup: CaseIterable {
+    case vehicles
+    case alarms
+    case people
+    case suddenEvents
+    case animals
+    case weather
+    case machinery
+
+    var title: String {
+        switch self {
+        case .vehicles: return "Vehicles and traffic"
+        case .alarms: return "Alarms and warnings"
+        case .people: return "People"
+        case .suddenEvents: return "Sudden events"
+        case .animals: return "Animals"
+        case .weather: return "Weather"
+        case .machinery: return "Machinery"
+        }
+    }
 }
 
 enum SoundKind: CaseIterable {
+    // Vehicles and traffic
     case siren
     case carHorn
+    case airHorn
     case trainHorn
-    case shouting
+    case railroadCrossingBell
     case tireScreech
-    case bikeBell
-    case dogBarking
-    case gunshot
-    case backingTruck
+    case carAlarm
+    case backupBeeper
     case motorcycle
-    case thunder
-    case dogGrowling
-    case rattlesnake
+    case engineRevving
+    case truckOrBus
+    case carPassing
+    case bikeBell
     case skateboard
+
+    // Alarms and warnings
+    case smokeAlarm
+    case burglarAlarm
+    case civilDefenseSiren
+    case whistle
+
+    // People
+    case screaming
+    case shouting
+    case babyCrying
+
+    // Sudden events
+    case gunshot
+    case explosion
+    case fireworks
+    case glassBreaking
+    case crash
+
+    // Animals
+    case dogBarking
+    case dogGrowling
+
+    // Weather
+    case thunder
+
+    // Machinery
+    case jackhammer
+    case chainsaw
+    case powerTool
+    case lawnMower
+    case leafBlower
+    case construction
+    case helicopter
 
     var title: String {
         switch self {
         case .siren: return "Siren"
         case .carHorn: return "Car horn"
+        case .airHorn: return "Truck horn"
         case .trainHorn: return "Train horn"
-        case .shouting: return "Shouting"
+        case .railroadCrossingBell: return "Railroad crossing"
         case .tireScreech: return "Tire screech"
-        case .bikeBell: return "Bike bell"
-        case .dogBarking: return "Dog barking"
-        case .gunshot: return "Gunshot"
-        case .backingTruck: return "Truck backing up"
+        case .carAlarm: return "Car alarm"
+        case .backupBeeper: return "Backup beeper"
         case .motorcycle: return "Motorcycle"
-        case .thunder: return "Thunder"
-        case .dogGrowling: return "Dog growling"
-        case .rattlesnake: return "Rattlesnake"
+        case .engineRevving: return "Engine revving"
+        case .truckOrBus: return "Truck or bus"
+        case .carPassing: return "Car passing"
+        case .bikeBell: return "Bike bell"
         case .skateboard: return "Skateboard"
+        case .smokeAlarm: return "Fire alarm"
+        case .burglarAlarm: return "Burglar alarm"
+        case .civilDefenseSiren: return "Warning siren"
+        case .whistle: return "Whistle"
+        case .screaming: return "Screaming"
+        case .shouting: return "Shouting"
+        case .babyCrying: return "Baby crying"
+        case .gunshot: return "Gunshot"
+        case .explosion: return "Explosion"
+        case .fireworks: return "Fireworks"
+        case .glassBreaking: return "Glass breaking"
+        case .crash: return "Crash"
+        case .dogBarking: return "Dog barking"
+        case .dogGrowling: return "Dog growling"
+        case .thunder: return "Thunder"
+        case .jackhammer: return "Jackhammer"
+        case .chainsaw: return "Chainsaw"
+        case .powerTool: return "Power tool"
+        case .lawnMower: return "Lawn mower"
+        case .leafBlower: return "Leaf blower"
+        case .construction: return "Construction"
+        case .helicopter: return "Helicopter"
         }
     }
 
-    var urgency: Urgency {
+    var group: SoundGroup {
         switch self {
-        case .siren, .carHorn, .trainHorn, .tireScreech, .gunshot: return .urgent
-        case .shouting, .backingTruck, .motorcycle, .thunder, .dogGrowling, .rattlesnake: return .caution
-        case .bikeBell, .dogBarking, .skateboard: return .info
+        case .siren, .carHorn, .airHorn, .trainHorn, .railroadCrossingBell, .tireScreech,
+             .carAlarm, .backupBeeper, .motorcycle, .engineRevving, .truckOrBus,
+             .carPassing, .bikeBell, .skateboard:
+            return .vehicles
+        case .smokeAlarm, .burglarAlarm, .civilDefenseSiren, .whistle:
+            return .alarms
+        case .screaming, .shouting, .babyCrying:
+            return .people
+        case .gunshot, .explosion, .fireworks, .glassBreaking, .crash:
+            return .suddenEvents
+        case .dogBarking, .dogGrowling:
+            return .animals
+        case .thunder:
+            return .weather
+        case .jackhammer, .chainsaw, .powerTool, .lawnMower, .leafBlower, .construction, .helicopter:
+            return .machinery
         }
     }
 }
