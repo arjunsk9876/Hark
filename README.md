@@ -8,14 +8,16 @@ It is an aid, not a replacement for awareness of your surroundings.
 
 ## Sounds
 
-Siren, car horn, train horn, tire screech, someone shouting, bike bell, and
-dog barking.
+- Urgent: siren, car horn, train horn, tire screech, gunshot
+- Caution: someone shouting, truck backing up, motorcycle, thunder, dog
+  growling, rattlesnake
+- Info: bike bell, dog barking, skateboard
 
 ## How it works
 
 - Microphone audio is streamed with `AVAudioEngine`.
 - Apple's built-in `SoundAnalysis` classifier (version 1) labels the audio.
-- Only the seven sounds above are reported, at 50% confidence or higher.
+- Only the sounds above are reported, at 50% confidence or higher.
 - Everything runs on the phone. Audio is never saved or sent.
 
 ## Requirements
