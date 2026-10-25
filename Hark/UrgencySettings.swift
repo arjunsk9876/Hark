@@ -41,12 +41,36 @@ nonisolated struct UrgencySettings: Sendable {
     var shortestHold = 2.0                // seconds
     var longestHold = 5.0                 // seconds
     var softestVibration = 0.3            // intensity at the alert minimum
+    var dullestVibration = 0.2            // sharpness at the alert minimum
+
+    // Pulses in each buzz, so urgency can be felt by count as well as strength.
+    var lowPulses = 1
+    var mediumPulses = 2
+    var highPulses = 3
+
+    // How many alerts the Recent screen keeps, in memory only.
+    var recentLimit = 50
 
     static let standard = UrgencySettings()
 
     /// Vibration intensity, soft at the alert minimum and full at 1.
     func vibrationIntensity(for score: Double) -> Double {
         blend(from: softestVibration, to: 1, score: score)
+    }
+
+    /// Vibration sharpness, a dull thud at the alert minimum and a sharp
+    /// knock at 1.
+    func vibrationSharpness(for score: Double) -> Double {
+        blend(from: dullestVibration, to: 1, score: score)
+    }
+
+    /// Number of pulses in each buzz for an urgency level.
+    func pulses(for level: UrgencyLevel) -> Int {
+        switch level {
+        case .low: return lowPulses
+        case .medium: return mediumPulses
+        case .high: return highPulses
+        }
     }
 
     /// Seconds between repeat vibrations while the sound continues.
